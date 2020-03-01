@@ -197,8 +197,8 @@ d = dict(finder.ngram_fd)
 left_list = [(k[0], v) for k,v in d.items() if k[1] == 'great']
 right_list = [(k[1], v) for k,v in d.items() if k[0] == 'great']
 
-left_list.sort(key = lambda x: x[1])
-right_list.sort(key = lambda x: x[1])
+left_list.sort(key = lambda x: x[1], reverse=True)
+right_list.sort(key = lambda x: x[1], reverse=True)
 print(f"What are the 3 most frequent immediate left collocates of great? \n{left_list[:3]}")
 print(f"And the 3 most frequent immediate right collocates of great? \n{right_list[:3]}")
 
@@ -210,8 +210,8 @@ finder = TrigramCollocationFinder.from_words(news_text)
 finder.apply_freq_filter(3)
 finder.apply_ngram_filter(great_filter)
 d = dict(finder.ngram_fd)
-middle_list = [(k[0], v) for k,v in d.items() if k[1] == 'great']
-middle_list.sort(key = lambda x: x[1])
+middle_list = [(k, v) for k,v in d.items() if k[1] == 'great']
+middle_list.sort(key = lambda x: x[1], reverse=True)
 print(f"What is the most common sequence that does not use a proper noun?")
 print(f"NOTE: eyeball the top 10")
 print(f"{middle_list[:3]}")
