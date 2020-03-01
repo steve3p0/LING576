@@ -1,8 +1,8 @@
 import nltk
 from nltk.collocations import *
+from nltk.tokenize import RegexpTokenizer
 import os
 import re
-import pandas as pd
 
 # filename = 'AP900124.TXT'
 # file = open(filename,'r')
@@ -221,12 +221,81 @@ print(f"{middle_list[:3]}")
 # 5.	Run a concordance listing with the 3-word sequence you found in #4.
 # 	What is the most common first right collocate of the 3-word sequence?
 #
+# I get 7 results:
+# [(('a', 'great', 'deal'), 18),
+#  (('as', 'great', 'as'), 4),
+#  (('a', 'great', 'way'), 4),
+#  (('of', 'great', 'American'), 3),
+#  (('is', 'great', ','), 3),
+#  (('and', 'great', 'ability'), 3),
+#  (('a', 'great', 'idea'), 3)]
 #
-# 6. 	Now, run a concordance listing with the 4-word sequence you found in #5.
-# 	A)  What is the most common first right collocate that is a noun?
-#
-#
+# Not sure what else can I say about the 1st right collocate
+
+# 6. Now, run a concordance listing with the 4-word sequence you found in #5.
+# 	 A) What is the most common first right collocate that is a noun?
+#       I would have to do some more coding to get this to work.
+
 # 	B)  How many occurrences of the most common noun are there?
 #
 #
 # 7. 	How do your findings here compare with your quick definition of "great" in #1?
+
+###############################################################
+# Part C: Compare Word Frequencies and Diversity
+#
+# Compare the classes and study groups in the T2KSWAL corpus. Complete Table 1.
+
+tokenizer = RegexpTokenizer(r'\w+')
+
+# Classes
+class_path = 'corpora\T2KSWAL\Classes'
+class_raw, class_file_count = load_corpus(class_path, 'latin-1')
+# With punctuation
+#class_tokens = nltk.word_tokenize(class_raw)
+#class_text = nltk.Text(class_tokens)
+# Without punctuation
+class_tokens_no_punct = tokenizer.tokenize(class_raw)
+class_text = nltk.Text(class_tokens_no_punct)
+
+class_fdist = nltk.FreqDist(class_text)
+class_top2_words = class_fdist.most_common(2)
+class_types = len(set(class_text))
+class_total_tokens = len(class_text)
+class_ttr = class_types / class_total_tokens
+
+print(f"\n\nClasses:")
+print(f"1st and 2nd most frequent words (not numbers or speaker IDs")
+print(f"\t{class_top2_words[0]}\t{class_top2_words[1]}")
+print(f"numnber of tokens")
+print(f"\t{class_types}")
+print(f"total words (tokens)")
+print(f"\t{class_total_tokens}")
+print(f"TTF (type-token ratio) - We will complete this later, not in lab!")
+print(f"\t{class_ttr}")
+
+# Study Groups
+study_path = 'corpora\T2KSWAL\StudyGrps'
+study_raw, study_file_count = load_corpus(study_path, 'latin-1')
+# With punctuation
+# study_tokens = nltk.word_tokenize(study_raw)
+# study_text = nltk.Text(study_tokens)
+# Without punctuation
+study_tokens_no_punct = tokenizer.tokenize(study_raw)
+study_text = nltk.Text(study_tokens_no_punct)
+
+study_fdist = nltk.FreqDist(study_text)
+study_top2_words = study_fdist.most_common(2)
+study_types = len(set(study_text))
+study_total_tokens = len(study_text)
+study_ttr = study_types / study_total_tokens
+
+print(f"\n\nStudy Groups:")
+print(f"1st and 2nd most frequent words (not numbers or speaker IDs")
+print(f"\t{study_top2_words[0]}\t{study_top2_words[1]}")
+print(f"numnber of tokens")
+print(f"\t{study_types}")
+print(f"total words (tokens)")
+print(f"\t{study_total_tokens}")
+print(f"TTF (type-token ratio) - We will complete this later, not in lab!")
+print(f"\t{study_ttr}")
