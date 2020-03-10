@@ -6,6 +6,10 @@ from nltk.corpus import stopwords
 import os
 import re
 
+nltk.download('punkt')
+nltk.download('stopwords')
+nltk.download('averaged_perceptron_tagger')
+
 #######################################
 
 class Corpus:
@@ -141,40 +145,40 @@ class Corpus:
 def main():
 
     #path = 'TedTalks.en-hr.en.txt'
-    path = 'SETIMES.en-hr.en.txt'
-    crp = Corpus(path)
+    #path = 'SETIMES.en-hr.en.txt'
+
+    crp = Corpus('data/bible-uedin.en-hr.en.txt')
     crp.display_basic_stats()
 
+    crp = Corpus('data/DGT.en-hr.en.txt')
+    crp.display_basic_stats()
 
-    # raw, file_count = load_corpus(path)
-    # tokens = nltk.word_tokenize(raw)
-    # text = nltk.Text(tokens)
-    # token_count = len(tokens)
-    #
-    # print(f"raw: {raw[:50]}")
-    # print(f"tokens: {tokens}")
-    # print(f"text[1st 50 sentences]: {text[:50]}")
-    # print(f"file count: {file_count}")
-    # print(f"word count: {token_count}")
-    #
-    # # 4. Run a KWIC of stuff in the newspapers files
-    # word = 'stuff'
-    # kwic_word_count = text.count(word)
-    # print(f"\nKWIC count of '{word}': {kwic_word_count}")
-    # print(f"KWIC of '{word}':\n {text.concordance(word)}")
-    #
-    # # KWIC of 'stuff like that'
-    # phrase = 'stuff like that'
-    # kwic_count = text.count(phrase)
-    # print(f"\nKWIC count of '{phrase}: {kwic_word_count}")
-    # print(f"KWIC of '{phrase}':\n {text.concordance(phrase)}")
-    #
-    # ##############################
-    # # Tagging
-    # tagged_text = nltk.pos_tag(text)
-    #
-    # print(f"tagged text: {tagged_text}")
+    crp = Corpus('data/GNOME.en-hr.en.txt')
+    crp.display_basic_stats()
 
+    crp = Corpus('data/hrenWaC.en-hr.en.txt')
+    crp.display_basic_stats()
+
+    crp = Corpus('data/KDE4.en-hr.en.txt')
+    crp.display_basic_stats()
+
+    crp = Corpus('data/OpenSubtitles.en-hr.en.txt')
+    crp.display_basic_stats()
+
+    crp = Corpus('data/QED.en-hr.en.txt')
+    crp.display_basic_stats()
+
+    crp = Corpus('data/Tatoeba.en-hr.en.txt')
+    crp.display_basic_stats()
+
+    crp = Corpus('data/TildeMODEL.en-hr.en.txt')
+    crp.display_basic_stats()
+
+    crp = Corpus('data/Ubuntu.en-hr.en.txt')
+    crp.display_basic_stats()
+
+    crp = Corpus('data/wikimedia.en-hr.en.txt')
+    crp.display_basic_stats()
 
 if __name__ == '__main__':
     # logging.debug("__main__")
