@@ -3,6 +3,7 @@ from nltk.collocations import *
 from nltk.tokenize import RegexpTokenizer
 from collections import defaultdict
 from nltk.corpus import stopwords
+from itertools import dropwhile
 import os
 import re
 
@@ -80,7 +81,7 @@ class Corpus:
         self.raw_counts_adverbs = self.counter_pos['ADV']
         self.raw_counts_adjectives = self.counter_pos['ADJ']
         self.raw_counts_functors = self.counter_pos['FUNCTOR']
-        self.raw_counts_inserts = self.counter_pos['Inserts']
+        self.raw_counts_inserts = self.counter_pos.get('Inserts', 0)
 
         self.percent_nouns = self.raw_counts_nouns / self.total_words
         self.percent_verbs = self.raw_counts_verbs / self.total_words
@@ -97,7 +98,6 @@ class Corpus:
         self.norm_counts_adverbs = self.percent_adverbs * self.basis
         self.norm_counts_functors = self.percent_functors * self.basis
         self.norm_counts_inserts = self.percent_inserts * self.basis
-
 
     def display_basic_stats(self):
         print(f"\n\nBasic NLP Statistics for Corpus '{self.path}':")
@@ -142,43 +142,106 @@ class Corpus:
                                  self.norm_counts_functors, self.norm_counts_inserts])
         print(f"\tTotal Norm Counts: {total_norm_counts:0.1f}")
 
+    # def passive(self):
+    #     """Takes a list of tags, returns true if we think this is a passive
+    #     sentence."""
+    #     # Particularly, if we see a "BE" verb followed by some other, non-BE
+    #     # verb, except for a gerund, we deem the sentence to be passive.
+    #
+    #     postToBe = list(dropwhile(lambda (tag): not tag.startswith("BE"), tags))
+    #     nongerund = lambda (tag): tag.startswith("V") and not tag.startswith("VBG")
+    #
+    #     filtered = filter(nongerund, postToBe)
+    #     out = any(filtered)
+    #
+    #     return out
+
+# Is Passive function taken from:
+# https://github.com/flycrane01/nltk-passive-voice-detector-for-English
+def isPassive(sentence):
+    beforms = ['am', 'is', 'are', 'been', 'was', 'were', 'be', 'being']               # all forms of "be"
+    aux = ['do', 'did', 'does', 'have', 'has', 'had']                                  # NLTK tags "do" and "have" as verbs, which can be misleading in the following section.
+    words = nltk.word_tokenize(sentence)
+    tokens = nltk.pos_tag(words)
+    tags = [i[1] for i in tokens]
+    if tags.count('VBN') == 0:                                                            # no PP, no passive voice.
+        return False
+    elif tags.count('VBN') == 1 and 'been' in words:                                    # one PP "been", still no passive voice.
+        return False
+    else:
+        pos = [i for i in range(len(tags)) if tags[i] == 'VBN' and words[i] != 'been']  # gather all the PPs that are not "been".
+        for end in pos:
+            chunk = tags[:end]
+            start = 0
+            for i in range(len(chunk), 0, -1):
+                last = chunk.pop()
+                if last == 'NN' or last == 'PRP':
+                    start = i                                                             # get the chunk between PP and the previous NN or PRP (which in most cases are subjects)
+                    break
+            sentchunk = words[start:end]
+            tagschunk = tags[start:end]
+            verbspos = [i for i in range(len(tagschunk)) if tagschunk[i].startswith('V')] # get all the verbs in between
+            if verbspos != []:                                                            # if there are no verbs in between, it's not passive
+                for i in verbspos:
+                    if sentchunk[i].lower() not in beforms and sentchunk[i].lower() not in aux:  # check if they are all forms of "be" or auxiliaries such as "do" or "have".
+                        break
+                else:
+                    return True
+    return False
+
+
 def main():
+
+    samples = '''I like being hunted.
+    The man is being hunted.
+    Don't be frightened by what he said.
+    I assume that you are not informed of the matter.
+    Please be advised that the park is closing soon.
+    The book will be released tomorrow.
+    We're astonished to see the building torn down.
+    The hunter is literally being chased by the tiger.
+    He has been awesome since birth.
+    She has been beautiful since birth.'''                                                   # "awesome" is wrongly tagged as PP. So the sentence gets a "True".
+
+    sents = nltk.sent_tokenize(samples)
+    for sent in sents:
+        print(sent + '--> %s' % isPassive(sent))
 
     #path = 'TedTalks.en-hr.en.txt'
     #path = 'SETIMES.en-hr.en.txt'
 
-    crp = Corpus('data/bible-uedin.en-hr.en.txt')
-    crp.display_basic_stats()
+    # crp = Corpus('data/bible-uedin.en-hr.en.txt')
+    # crp.display_basic_stats()
 
-    crp = Corpus('data/DGT.en-hr.en.txt')
-    crp.display_basic_stats()
+    # crp = Corpus('data/DGT.en-hr.en.txt')
+    # crp.display_basic_stats()
+    #
+    # crp = Corpus('data/GNOME.en-hr.en.txt')
+    # crp.display_basic_stats()
+    #
+    # crp = Corpus('data/hrenWaC.en-hr.en.txt')
+    # crp.display_basic_stats()
+    #
+    # crp = Corpus('data/KDE4.en-hr.en.txt')
+    # crp.display_basic_stats()
+    #
+    # crp = Corpus('data/OpenSubtitles.en-hr.en.txt')
+    # crp.display_basic_stats()
+    #
+    # crp = Corpus('data/QED.en-hr.en.txt')
+    # crp.display_basic_stats()
+    #
+    # crp = Corpus('data/Tatoeba.en-hr.en.txt')
+    # crp.display_basic_stats()
 
-    crp = Corpus('data/GNOME.en-hr.en.txt')
-    crp.display_basic_stats()
-
-    crp = Corpus('data/hrenWaC.en-hr.en.txt')
-    crp.display_basic_stats()
-
-    crp = Corpus('data/KDE4.en-hr.en.txt')
-    crp.display_basic_stats()
-
-    crp = Corpus('data/OpenSubtitles.en-hr.en.txt')
-    crp.display_basic_stats()
-
-    crp = Corpus('data/QED.en-hr.en.txt')
-    crp.display_basic_stats()
-
-    crp = Corpus('data/Tatoeba.en-hr.en.txt')
-    crp.display_basic_stats()
-
-    crp = Corpus('data/TildeMODEL.en-hr.en.txt')
-    crp.display_basic_stats()
-
-    crp = Corpus('data/Ubuntu.en-hr.en.txt')
-    crp.display_basic_stats()
-
-    crp = Corpus('data/wikimedia.en-hr.en.txt')
-    crp.display_basic_stats()
+    # crp = Corpus('data/TildeMODEL.en-hr.en.txt')
+    # crp.display_basic_stats()
+    #
+    # crp = Corpus('data/Ubuntu.en-hr.en.txt')
+    # crp.display_basic_stats()
+    #
+    # crp = Corpus('data/wikimedia.en-hr.en.txt')
+    # crp.display_basic_stats()
 
 if __name__ == '__main__':
     # logging.debug("__main__")
