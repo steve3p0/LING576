@@ -141,71 +141,106 @@ class Corpus:
         total_norm_counts = sum([self.norm_counts_nouns, self.norm_counts_verbs, self.norm_counts_adjectives, self.norm_counts_adverbs,
                                  self.norm_counts_functors, self.norm_counts_inserts])
         print(f"\tTotal Norm Counts: {total_norm_counts:0.1f}")
+        self.get_passive_counts()
 
-    # def passive(self):
-    #     """Takes a list of tags, returns true if we think this is a passive
-    #     sentence."""
-    #     # Particularly, if we see a "BE" verb followed by some other, non-BE
-    #     # verb, except for a gerund, we deem the sentence to be passive.
-    #
-    #     postToBe = list(dropwhile(lambda (tag): not tag.startswith("BE"), tags))
-    #     nongerund = lambda (tag): tag.startswith("V") and not tag.startswith("VBG")
-    #
-    #     filtered = filter(nongerund, postToBe)
-    #     out = any(filtered)
-    #
-    #     return out
+    def get_passive_counts(self):
+        self.passive_count = 0
+        for sent in self.sentences:
+            passive = self.isPassive(sent)
+            #print(sent + '--> %s' % self.isPassive(sent))
+            if passive:
+                self.passive_count += 1
 
-# Is Passive function taken from:
-# https://github.com/flycrane01/nltk-passive-voice-detector-for-English
-def isPassive(sentence):
-    beforms = ['am', 'is', 'are', 'been', 'was', 'were', 'be', 'being']               # all forms of "be"
-    aux = ['do', 'did', 'does', 'have', 'has', 'had']                                  # NLTK tags "do" and "have" as verbs, which can be misleading in the following section.
-    words = nltk.word_tokenize(sentence)
-    tokens = nltk.pos_tag(words)
-    tags = [i[1] for i in tokens]
-    if tags.count('VBN') == 0:                                                            # no PP, no passive voice.
-        return False
-    elif tags.count('VBN') == 1 and 'been' in words:                                    # one PP "been", still no passive voice.
-        return False
-    else:
-        pos = [i for i in range(len(tags)) if tags[i] == 'VBN' and words[i] != 'been']  # gather all the PPs that are not "been".
-        for end in pos:
-            chunk = tags[:end]
-            start = 0
-            for i in range(len(chunk), 0, -1):
-                last = chunk.pop()
-                if last == 'NN' or last == 'PRP':
-                    start = i                                                             # get the chunk between PP and the previous NN or PRP (which in most cases are subjects)
-                    break
-            sentchunk = words[start:end]
-            tagschunk = tags[start:end]
-            verbspos = [i for i in range(len(tagschunk)) if tagschunk[i].startswith('V')] # get all the verbs in between
-            if verbspos != []:                                                            # if there are no verbs in between, it's not passive
-                for i in verbspos:
-                    if sentchunk[i].lower() not in beforms and sentchunk[i].lower() not in aux:  # check if they are all forms of "be" or auxiliaries such as "do" or "have".
+        print(f"\n\nPassive Sentences: {self.passive_count} out of {self.total_sentences} total sentences")
+        self.passive_percent = self.passive_count / self.total_sentences
+        print(f"% of Passive Sentences: {self.passive_percent:.1%}")
+
+    # # Is Passive function taken from:
+    # # https://github.com/flycrane01/nltk-passive-voice-detector-for-English
+    # def isPassive(self, sentence):
+    #     beforms = ['am', 'is', 'are', 'been', 'was', 'were', 'be', 'being']               # all forms of "be"
+    #     aux = ['do', 'did', 'does', 'have', 'has', 'had']                                  # NLTK tags "do" and "have" as verbs, which can be misleading in the following section.
+    #     words = nltk.word_tokenize(sentence)
+    #     tokens = nltk.pos_tag(words)
+    #     tags = [i[1] for i in tokens]
+    #     if tags.count('VBN') == 0:                                                            # no PP, no passive voice.
+    #         return False
+    #     elif tags.count('VBN') == 1 and 'been' in words:                                    # one PP "been", still no passive voice.
+    #         return False
+    #     else:
+    #         pos = [i for i in range(len(tags)) if tags[i] == 'VBN' and words[i] != 'been']  # gather all the PPs that are not "been".
+    #         for end in pos:
+    #             chunk = tags[:end]
+    #             start = 0
+    #             for i in range(len(chunk), 0, -1):
+    #                 last = chunk.pop()
+    #                 if last == 'NN' or last == 'PRP':
+    #                     start = i                                                             # get the chunk between PP and the previous NN or PRP (which in most cases are subjects)
+    #                     break
+    #             sentchunk = words[start:end]
+    #             tagschunk = tags[start:end]
+    #             verbspos = [i for i in range(len(tagschunk)) if tagschunk[i].startswith('V')] # get all the verbs in between
+    #             if verbspos != []:                                                            # if there are no verbs in between, it's not passive
+    #                 for i in verbspos:
+    #                     if sentchunk[i].lower() not in beforms and sentchunk[i].lower() not in aux:  # check if they are all forms of "be" or auxiliaries such as "do" or "have".
+    #                         break
+    #                 else:
+    #                     return True
+    #     return False
+
+    # Is Passive function taken from:
+    # https://github.com/flycrane01/nltk-passive-voice-detector-for-English
+    def isPassive(self, sentence):
+        beforms = ['am', 'is', 'are', 'been', 'was', 'were', 'be', 'being']               # all forms of "be"
+        aux = ['do', 'did', 'does', 'have', 'has', 'had']                                  # NLTK tags "do" and "have" as verbs, which can be misleading in the following section.
+        words = nltk.word_tokenize(sentence)
+        tokens = nltk.pos_tag(words)
+        tags = [i[1] for i in tokens]
+        if tags.count('VBN') == 0:                                                            # no PP, no passive voice.
+            return False
+        elif tags.count('VBN') == 1 and 'been' in words:                                    # one PP "been", still no passive voice.
+            return False
+        else:
+            pos = [i for i in range(len(tags)) if tags[i] == 'VBN' and words[i] != 'been']  # gather all the PPs that are not "been".
+            for end in pos:
+                chunk = tags[:end]
+                start = 0
+                for i in range(len(chunk), 0, -1):
+                    last = chunk.pop()
+                    if last == 'NN' or last == 'PRP':
+                        start = i                                                             # get the chunk between PP and the previous NN or PRP (which in most cases are subjects)
                         break
-                else:
-                    return True
-    return False
-
+                sentchunk = words[start:end]
+                tagschunk = tags[start:end]
+                verbspos = [i for i in range(len(tagschunk)) if tagschunk[i].startswith('V')] # get all the verbs in between
+                if verbspos != []:                                                            # if there are no verbs in between, it's not passive
+                    for i in verbspos:
+                        if sentchunk[i].lower() not in beforms and sentchunk[i].lower() not in aux:  # check if they are all forms of "be" or auxiliaries such as "do" or "have".
+                            break
+                    else:
+                        return True
+        return False
 
 def main():
 
-    samples = '''I like being hunted.
-    The man is being hunted.
-    Don't be frightened by what he said.
-    I assume that you are not informed of the matter.
-    Please be advised that the park is closing soon.
-    The book will be released tomorrow.
-    We're astonished to see the building torn down.
-    The hunter is literally being chased by the tiger.
-    He has been awesome since birth.
-    She has been beautiful since birth.'''                                                   # "awesome" is wrongly tagged as PP. So the sentence gets a "True".
+    crp = Corpus('data/TedTalks_10k.en-hr.en.txt')
+    crp.display_basic_stats()
+    #crp.get_passive_counts()
 
-    sents = nltk.sent_tokenize(samples)
-    for sent in sents:
-        print(sent + '--> %s' % isPassive(sent))
+    # samples = '''I like being hunted.
+    # The man is being hunted.
+    # Don't be frightened by what he said.
+    # I assume that you are not informed of the matter.
+    # Please be advised that the park is closing soon.
+    # The book will be released tomorrow.
+    # We're astonished to see the building torn down.
+    # The hunter is literally being chased by the tiger.
+    # He has been awesome since birth.
+    # She has been beautiful since birth.'''                                                   # "awesome" is wrongly tagged as PP. So the sentence gets a "True".
+    #
+    # sents = nltk.sent_tokenize(samples)
+    # for sent in sents:
+    #     print(sent + '--> %s' % isPassive(sent))
 
     #path = 'TedTalks.en-hr.en.txt'
     #path = 'SETIMES.en-hr.en.txt'
