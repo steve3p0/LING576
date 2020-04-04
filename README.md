@@ -20,7 +20,7 @@ feature, the passive voice, is poorly translated, how we can identify this featu
 how augmenting our training corpus with passive voice phrases improves machine translation
 quality of this feature._
 
-You can read the full paper [here](https://github.com/steve3p0/LING511/blob/master/Draw.IO%20Syntax%20Scratchpad.xml).
+You can read the full paper [here](https://github.com/steve3p0/LING576/blob/master/LING576%20Winter2020%20Final%20Paper%20-%20Steve%20Braich.pdf).
 
 The source code for the project is located the [corpus_project](https://github.com/steve3p0/LING576/tree/master/corpus_project)
 folder.  I will add a Jupyter Notebook and some more information on requirements, etc., at a later date.
