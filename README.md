@@ -5,7 +5,7 @@ Source code repository for corpus linguistics taught at Portland State Universit
 ### Labs (work-in-progress)
 The labs for this course are designed for non-programmers.  One of my goals was to create programming
 versions of the assignments, so that students interested in NLP could do this option.  I have Lab 1 
-completed.  _Stay tuned!_
+completed and a start on Lab 2.  _Stay tuned!_
 
 ### Final Project: Feature Identification in Corpus Linguistics
 "A Case Study in Improving Machine Translation"
